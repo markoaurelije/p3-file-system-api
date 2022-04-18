@@ -1,0 +1,36 @@
+{
+  "name": "p3-file-system-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "debug": "npm run dev -- --inspect",
+    "dev": "NODE_ENV=development nodemon -L index.js",
+    "test": "jest --runInBand",
+    "test:watch": "npm test -- --watch",
+    "test:coverage": "npm test -- --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/create-config": "^0.1.2",
+    "@types/jest": "^27.4.1",
+    "eslint": "^8.13.0",
+    "jest": "^27.5.1",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.6.2",
+    "supertest": "^6.2.2"
+  },
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cls-hooked": "^4.2.2",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "morgan": "^1.10.0",
+    "pg": "^8.7.3",
+    "sequelize": "^6.19.0",
+    "sequelize-cli": "^6.4.1"
+  }
+}

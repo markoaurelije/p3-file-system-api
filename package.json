@@ -7,7 +7,7 @@
     "start": "node src/index.js",
     "debug": "npm run dev -- --inspect",
     "dev": "NODE_ENV=development nodemon -L src/index.js",
-    "test": "jest --runInBand",
+    "test": "jest --runInBand --verbose",
     "test:watch": "npm test -- --watch",
     "test:coverage": "npm test -- --coverage"
   },

@@ -13,7 +13,7 @@ module.exports = {
     password: process.env.DB_TEST_PASSWORD || "secret",
     host: process.env.DB_TEST_HOST || "localhost",
     port: parseInt(process.env.DB_TEST_PORT) || 5433,
-    database: process.env.DB_TEST_DATABASE || "filesystem-api-test",
+    database: process.env.DB_TEST_DATABASE || "postgres",
     dialect: "postgres",
   },
 };

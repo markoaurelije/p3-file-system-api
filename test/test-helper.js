@@ -29,8 +29,11 @@ module.exports = class TestHelpers {
   static async createNewFolder(name, parent = null) {
     const { Folder } = require("../src/models").models;
     const folderName = name || "folder name 01";
-    const data = { name: folderName, parent };
-    return await Folder.createNewFolder(data);
+    let parentId = null;
+    if (parent) {
+      parentId = (await Folder.create({ name: parent })).id;
+    }
+    return await Folder.create({ name: folderName, parentId });
   }
 
   // static getApp() {

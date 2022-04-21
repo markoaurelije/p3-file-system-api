@@ -46,12 +46,24 @@ module.exports = (sequelize) => {
           },
         },
       },
+      path: {
+        type: DataTypes.STRING(1024),
+      },
     },
     {
       sequelize,
       modelName: "File",
     }
   );
+
+  File.beforeSave(async (file, options) => {
+    let parentPath = "";
+    if (file.parentId) {
+      const parent = await sequelize.models.Folder.findByPk(file.parentId);
+      if (parent) parentPath = parent.path;
+    }
+    file.path = `${parentPath}/${file.name}`;
+  });
 
   return File;
 };

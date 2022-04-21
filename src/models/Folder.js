@@ -23,18 +23,6 @@ module.exports = (sequelize) => {
         },
       });
     }
-
-    static async createNewFolder({ name, parent = null }) {
-      return sequelize.transaction(async () => {
-        return await Folder.create(
-          {
-            name,
-            parent,
-          },
-          { include: Folder.parent }
-        );
-      });
-    }
   }
 
   Folder.init(
@@ -58,12 +46,24 @@ module.exports = (sequelize) => {
           },
         },
       },
+      path: {
+        type: DataTypes.STRING(1024),
+      },
     },
     {
       sequelize,
       modelName: "Folder",
     }
   );
+
+  Folder.beforeSave(async (folder, options) => {
+    let parentPath = "";
+    if (folder.parentId) {
+      const parent = await Folder.findByPk(folder.parentId);
+      if (parent) parentPath = parent.path;
+    }
+    folder.path = `${parentPath}/${folder.name}`;
+  });
 
   return Folder;
 };

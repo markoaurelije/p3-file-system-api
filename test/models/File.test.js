@@ -2,7 +2,7 @@ const helper = require("../test-helper");
 const { models } = require("../../src/models");
 var File, Folder;
 
-describe("File", () => {
+describe("File model", () => {
   beforeAll(async () => {
     await helper.startDb();
     ({ File, Folder } = models);
@@ -18,51 +18,33 @@ describe("File", () => {
 
   describe("Creation and deletion", () => {
     it("Should succeed to create a new file in root folder (parent == null)", async () => {
-      // const { File, Folder } = models;
-      const filename = "test";
+      const filename = "test.png";
       const data = { name: filename };
-      const newFile = await File.createNewFile(data);
+      const newFile = await File.create(data);
 
-      // console.log(newFile);
       expect(newFile.id).toBeDefined();
       expect(newFile.name).toEqual(filename);
+      expect(newFile.path).toEqual("/" + filename);
       expect(newFile.parentId).toBeNull();
-
-      // console.log((await File.findByPk(1, { include: File.parent })).toJSON());
-    });
-
-    it("Should be able to create a new file with parent set", async () => {
-      // const { File } = models;
-      const filename = "test";
-      const parent = "root";
-      const data = { name: filename, parent: { name: parent } };
-      const newFile = await File.createNewFile(data);
-
-      expect(newFile.id).toBeDefined();
-      expect(newFile.name).toEqual(filename);
-      expect(newFile.parentId).not.toBeNull();
-      expect(newFile.parent).not.toBeNull();
-      expect(newFile.parent.name).toEqual(parent);
-
-      // console.log((await File.findByPk(1, { include: File.parent })).toJSON());
     });
 
     it("Should be able to set parent (move file to another parent)", async () => {
-      // const { File, Folder } = models;
-      const filename = "test";
-      const data = { name: filename };
-      const newFile = await File.createNewFile(data);
+      const filename = "test.png";
+      const newFile = await File.create({ name: filename });
 
       expect(newFile.id).toBeDefined();
       expect(newFile.name).toEqual(filename);
+      expect(newFile.path).toEqual("/" + filename);
       expect(newFile.parentId).toBeNull();
 
-      const newFolder = await Folder.createNewFolder({ name: "some folder" });
-      await newFile.setParent(newFolder);
+      const parentFolder = await Folder.create({ name: "some folder" });
+      // await newFile.setParent(parentFolder);
+      await newFile.update({ parentId: parentFolder.id });
 
       expect(newFile.name).toEqual(filename);
+      expect(newFile.path).toEqual(parentFolder.path + "/" + filename);
       expect(newFile.parentId).not.toBeNull();
-      expect(newFile.parentId).toEqual(newFolder.id);
+      expect(newFile.parentId).toEqual(parentFolder.id);
 
       // console.log(newFile.toJSON());
     });
@@ -112,7 +94,7 @@ describe("File", () => {
     });
 
     it("should fail to create sub-folder with existing name", async () => {
-      const rootFolder = await Folder.createNewFolder({ name: "root" });
+      const rootFolder = await Folder.create({ name: "root" });
 
       await File.create({
         name: "file001",

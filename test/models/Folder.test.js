@@ -2,7 +2,7 @@ const helper = require("../test-helper");
 const { models } = require("../../src/models");
 var File, Folder;
 
-describe("Folder", () => {
+describe("Folder model", () => {
   beforeAll(async () => {
     await helper.startDb();
     ({ File, Folder } = models);
@@ -20,48 +20,37 @@ describe("Folder", () => {
     it("Should succeed to create a new folder in root (parent == null)", async () => {
       const folderName = "folder0";
       const data = { name: folderName };
-      const newFolder = await Folder.createNewFolder(data);
+      const newFolder = await Folder.create(data);
 
       expect(newFolder.id).toBeDefined();
       expect(newFolder.name).toEqual(folderName);
+      expect(newFolder.path).toEqual("/" + folderName);
       expect(newFolder.parentId).toBeNull();
       expect(await newFolder.getFiles()).toEqual([]);
       // console.log((await File.findByPk(1, { include: File.parent })).toJSON());
     });
 
-    it("Should be able to create a new folder with parent set", async () => {
-      const folderName = "test folder";
-      const parent = "some parent";
-      const data = { name: folderName, parent: { name: parent } };
-      const newFolder = await Folder.createNewFolder(data);
-
-      expect(newFolder.id).toBeDefined();
-      expect(newFolder.name).toEqual(folderName);
-      expect(newFolder.parentId).not.toBeNull();
-      expect(newFolder.parent).not.toBeNull();
-      expect(newFolder.parent.name).toEqual(parent);
-      expect(await newFolder.getFiles()).toEqual([]);
-
-      // console.log((await File.findByPk(1, { include: File.parent })).toJSON());
-    });
-
     it("Should be able to set folder parent (move to another parent)", async () => {
+      const parentFolder = await Folder.create({
+        name: "some other folder",
+      });
+      expect(parentFolder.path).toEqual("/some other folder");
       const folderName = "test folder";
       const data = { name: folderName };
-      const myFolder = await Folder.createNewFolder(data);
+      const myFolder = await Folder.create(data);
 
       expect(myFolder.id).toBeDefined();
       expect(myFolder.name).toEqual(folderName);
+      expect(myFolder.path).toEqual("/" + folderName);
       expect(myFolder.parentId).toBeNull();
 
-      const newFolder = await Folder.createNewFolder({
-        name: "some other folder",
-      });
-      await myFolder.setParent(newFolder);
-
+      // await myFolder.setParent(parentFolder);  // for some reason, this call is not update-ing DB
+      await myFolder.update({ parentId: parentFolder.id });
       expect(myFolder.name).toEqual(folderName);
+      expect(myFolder.path).toEqual(parentFolder.path + "/" + folderName);
       expect(myFolder.parentId).not.toBeNull();
-      expect(myFolder.parentId).toEqual(newFolder.id);
+      expect(myFolder.parentId).toEqual(parentFolder.id);
+      // await myFolder.save();
 
       // console.log(newFile.toJSON());
     });
@@ -122,7 +111,7 @@ describe("Folder", () => {
     });
 
     it("should fail to create 1st level folder with existing name (parent is null)", async () => {
-      await Folder.createNewFolder({ name: "root-folder" });
+      await Folder.create({ name: "root-folder" });
 
       let error;
       try {
@@ -138,7 +127,7 @@ describe("Folder", () => {
     });
 
     it("should fail to create sub-folder with existing name", async () => {
-      const rootFolder = await Folder.createNewFolder({ name: "root" });
+      const rootFolder = await Folder.create({ name: "root" });
 
       await Folder.create({
         name: "folder01",

@@ -1,4 +1,4 @@
-const { Model, DataTypes } = require("sequelize");
+const { Model, DataTypes, Op } = require("sequelize");
 
 module.exports = (sequelize) => {
   class File extends Model {
@@ -22,6 +22,23 @@ module.exports = (sequelize) => {
           },
           { include: File.parent }
         );
+      });
+    }
+
+    static async findWithName({ name, parent = null }) {
+      let nameCondition = Object.assign({}, name && { name: { [Op.startsWith]: name } });
+      let parentCondition = Object.assign({}, parent && { name: parent });
+
+      return await File.findAll({
+        where: nameCondition,
+        include: [
+          {
+            model: sequelize.models.Folder,
+            as: "parent",
+            where: parentCondition,
+            required: !!parent,
+          },
+        ],
       });
     }
   }

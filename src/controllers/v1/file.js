@@ -7,7 +7,10 @@ const { File } = models;
 
 router
   .get("/", async (req, res, next) => {
-    const files = await File.findAll();
+    const name = req.query.name;
+    const parent = req.query.parent;
+
+    const files = await File.findWithName({ name, parent });
     return res.status(200).send(files.map((file) => file.toJSON()));
   })
 

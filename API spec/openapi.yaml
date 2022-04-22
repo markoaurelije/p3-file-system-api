@@ -1,0 +1,69 @@
+openapi: 3.0.2
+info:
+  version: "1.0"
+  title: P3 File System API
+servers:
+  - url: http://localhost:3000
+    description: Development Server
+
+paths:
+  /v1/folders:
+    get:
+      description: List Folders
+      tags:
+        - Folder
+      parameters:
+        - $ref: "#/components/parameters/PageNumberParam"
+        - $ref: "#/components/parameters/PageSizeParam"
+      responses:
+        200:
+          description: "List of Folders"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Folder"
+
+components:
+  schemas:
+    Folder:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        path:
+          type: string
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+
+  parameters:
+    PageNumberParam:
+      name: page
+      in: query
+      description: Page Number
+      required: false
+      schema:
+        type: integer
+        format: int32
+        default: 0
+        minimum: 0
+    PageSizeParam:
+      name: pageSize
+      in: query
+      description: Page Size
+      required: false
+      schema:
+        type: integer
+        format: int32
+        default: 5

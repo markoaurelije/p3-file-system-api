@@ -36,8 +36,8 @@ module.exports = class TestHelpers {
     return await Folder.create({ name: folderName, parentId });
   }
 
-  // static getApp() {
-  //   const App = require("../src/app").default;
-  //   return new App().getApp();
-  // }
+  static getApp() {
+    const App = require("../src/app");
+    return new App().getApp();
+  }
 };

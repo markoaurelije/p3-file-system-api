@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const environment = require("./config/environment");
 const logger = require("morgan");
 const { v1Routes } = require("./controllers");
@@ -7,6 +8,7 @@ module.exports = class App {
   constructor() {
     this.app = express();
     this.app.use(logger("dev", { skip: (req, res) => environment.nodeEnv === "test" }));
+    this.app.use(cors());
     this.app.use(express.json());
     // this.app.use(express.urlencoded({ extended: true }));
     this.setRoutes();

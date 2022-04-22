@@ -25,11 +25,11 @@ module.exports = (sequelize) => {
       });
     }
 
-    static async findWithName({ name, parent = null }) {
+    static async findWithName({ name, parent = null, limit = null }) {
       let nameCondition = Object.assign({}, name && { name: { [Op.startsWith]: name } });
       let parentCondition = Object.assign({}, parent && { name: parent });
 
-      return await File.findAll({
+      let options = {
         where: nameCondition,
         include: [
           {
@@ -39,7 +39,11 @@ module.exports = (sequelize) => {
             required: !!parent,
           },
         ],
-      });
+      };
+
+      Object.assign(options, limit && { limit });
+
+      return await File.findAll(options);
     }
   }
 
@@ -70,6 +74,7 @@ module.exports = (sequelize) => {
     {
       sequelize,
       modelName: "File",
+      defaultScope: { attributes: { exclude: ["parentId"] } },
     }
   );
 

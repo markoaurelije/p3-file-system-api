@@ -113,5 +113,18 @@ describe("File model", () => {
       expect(error.errors[0].path).toEqual("name");
       expect(error.errors[0].message).toEqual("Filename already exists along this path");
     });
+
+    it("should fail to create file with empty name", async () => {
+      let error;
+      try {
+        await File.create({ name: "" });
+      } catch (e) {
+        error = e;
+      }
+
+      expect(error).toBeDefined();
+      expect(error.errors.length).toEqual(1);
+      expect(error.errors[0].path).toEqual("name");
+    });
   });
 });

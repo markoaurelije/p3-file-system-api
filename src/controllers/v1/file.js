@@ -9,8 +9,9 @@ router
   .get("/", async (req, res, next) => {
     const name = req.query.name;
     const parent = req.query.parent;
+    const limit = parseInt(req.query.limit);
 
-    const files = await File.findWithName({ name, parent });
+    const files = await File.findWithName({ name, parent, limit });
     return res.status(200).send(files.map((file) => file.toJSON()));
   })
 

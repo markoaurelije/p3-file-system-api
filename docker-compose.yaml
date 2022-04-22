@@ -2,38 +2,38 @@ version: '3'
 services:
   api:
     build:
-      context: ./app
+      context: ./
       args:
-        NODE_ENV: production
+        NODE_ENV: ${NODE_ENV:-production}
     depends_on:
-      - db
+      - postgres-db
     ports:
       - "3000:3000"
     env_file:
-      - .env
+      - .env.sample
     environment:
       PORT: ${PORT:-3000}=3000
       NODE_ENV: ${NODE_ENV:-production}
-      DB_HOST: ${DB_HOST:-db}
-      DB_NAME: ${DB_NAME:-p3-file-system}
+      DB_HOST: ${DB_HOST:-postgres-db}
+      DB_NAME: ${DB_NAME:-filesystem-api}
       DB_PASS: ${DB_PASS:-secret}
       DB_PORT: ${DB_PORT:-5432}
 
   postgres-db:
     image: postgres:14
     env_file:
-      - .env
+      - .env.sample
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
-      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_DB: ${DB_NAME:-filesystem-api}
     ports:
       - ${DB_PORT:-5432}:5432
   postgres-test-db:
     image: postgres:14
     env_file:
-      - .env
+      - .env.sample
     environment:
       POSTGRES_PASSWORD: ${DB_TEST_PASSWORD:-secret}
-      POSTGRES_DB: ${DB_TEST_DATABASE}
+      POSTGRES_DB: ${DB_TEST_NAME:-filesystem-api}
     ports:
       - ${DB_TEST_PORT:-5433}:5432

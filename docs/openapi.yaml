@@ -1,0 +1,184 @@
+openapi: 3.0.2
+info:
+  version: "1.0"
+  title: P3 File System API
+  description: browser-based file system
+servers:
+  - url: http://localhost:3000
+    description: Development Server
+
+paths:
+
+  /v1/files:
+    get:
+      description: List Files
+      tags:
+        - File
+      parameters:
+        - $ref: "#/components/parameters/FileNameParam"
+        - $ref: "#/components/parameters/ParentNameParam"
+        - $ref: "#/components/parameters/LimitResultsParam"
+      responses:
+        200:
+          description: "List of Files"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/File"
+    post:
+      description: Create a File
+      tags:
+        - File
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/File'
+      responses:
+        201:
+          description: Success
+        406:
+          description: Not allowed
+
+  /v1/files/{FileID}:
+    delete:
+      description: Delete a File
+      tags:
+        - File
+      parameters:
+        - $ref: '#/components/parameters/FileID'
+      responses:
+        200:
+          description: Success
+
+  /v1/folders:
+    get:
+      description: List Folders
+      tags:
+        - Folder
+      responses:
+        200:
+          description: "List of Folders"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Folder"
+    post:
+      description: Create a Folder
+      tags:
+        - Folder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/File'
+      responses:
+        201:
+          description: Success
+
+  /v1/folders/{FolderID}:
+    delete:
+      description: Delete a Folder
+      tags:
+        - Folder
+      parameters:
+          - $ref: '#/components/parameters/FolderID'
+      responses:
+        200:
+          description: Success
+
+components:
+  schemas:
+    Folder:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        path:
+          type: string
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+        parentId:
+          type: integer
+          default: null
+    #        parent:
+    #          $ref: "#/components/schemas/Folder"
+    #          readOnly: true
+    File:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        path:
+          type: string
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+        parentId:
+          type: integer
+          default: null
+  #        parent:
+#          $ref: "#/components/schemas/Folder"
+#          readOnly: true
+
+  parameters:
+    FolderID:
+      name: FolderID
+      in: path
+      description: Input ID of a folder to delete
+      required: true
+      schema:
+        type: integer
+        format: int64
+    FileID:
+      name: FileID
+      in: path
+      description: Input ID of a file to delete
+      required: true
+      schema:
+        type: integer
+        format: int64
+    FileNameParam:
+      name: name
+      in: query
+      description: File Name to Search
+      required: false
+      schema:
+        type: string
+    ParentNameParam:
+      name: parent
+      in: query
+      description: Parent folder name to search in
+      required: false
+      schema:
+        type: string
+    LimitResultsParam:
+      name: limit
+      in: query
+      description: Limit number of returned results
+      required: false
+      schema:
+        type: string

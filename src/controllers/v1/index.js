@@ -4,7 +4,7 @@ const folderRouter = require("./folder");
 
 const router = Router();
 
-router.use("/file", fileRouter);
-router.use("/folder", folderRouter);
+router.use("/files", fileRouter);
+router.use("/folders", folderRouter);
 
 module.exports = router;

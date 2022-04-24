@@ -23,22 +23,54 @@ describe("File controller", () => {
   describe("GET method", () => {
     it("should list all files", async () => {
       await helper.createNewFile();
-      const response = await request(app).get("/v1/file").expect(200);
+      const response = await request(app).get("/v1/files").expect(200);
       expect(response.body.length).toEqual(1);
+    });
+
+    it("should return limited number of files based on 'limit' query parameter", async () => {
+      await helper.createTestDataSet();
+      const response = await request(app).get("/v1/files?limit=3").expect(200);
+
+      expect(response.body.length).toEqual(3);
+    });
+
+    it("should search for files based on 'name' query parameter", async () => {
+      await helper.createTestDataSet();
+      const response = await request(app).get("/v1/files?name=index.").expect(200);
+
+      expect(response.body.length).toEqual(2);
+
+      expect(response.body).toEqual(
+        expect.arrayContaining([expect.objectContaining({ name: "index.js" })])
+      );
+      expect(response.body).toEqual(
+        expect.arrayContaining([expect.objectContaining({ name: "index.test.js" })])
+      );
+    });
+
+    it("should search for files based on 'name' and 'parent' query parameters", async () => {
+      await helper.createTestDataSet();
+      const response = await request(app).get("/v1/files?name=index.&parent=src").expect(200);
+
+      expect(response.body.length).toEqual(1);
+
+      expect(response.body).toEqual(
+        expect.arrayContaining([expect.objectContaining({ name: "index.js" })])
+      );
     });
   });
 
   describe("POST method", () => {
     it("should create a new file in root folder", async () => {
       const filename = "filename.txt";
-      const response = await request(app).post("/v1/file").send({ name: filename }).expect(201);
+      const response = await request(app).post("/v1/files").send({ name: filename }).expect(201);
       expect(response.body.name).toEqual(filename);
       expect(response.body.path).toEqual("/" + filename);
       expect(response.body.createdAt).toEqual(expect.any(String));
       expect(response.body.updatedAt).toEqual(expect.any(String));
       expect(response.body.parentId).toBeNull();
 
-      const createdFile = await File.findByPk(1);
+      const createdFile = await File.unscoped().findByPk(1);
       expect(createdFile.name).toEqual(filename);
       expect(createdFile.path).toEqual("/" + filename);
       expect(createdFile.createdAt).toEqual(expect.any(Date));
@@ -52,7 +84,7 @@ describe("File controller", () => {
 
       const filename = "filename.txt";
       const response = await request(app)
-        .post("/v1/file")
+        .post("/v1/files")
         .send({ name: filename, parentId: folder.id })
         .expect(201);
       expect(response.body.name).toEqual(filename);
@@ -61,7 +93,7 @@ describe("File controller", () => {
       expect(response.body.updatedAt).toEqual(expect.any(String));
       expect(response.body.parentId).toEqual(folder.id);
 
-      const createdFile = await File.findByPk(1);
+      const createdFile = await File.unscoped().findByPk(1);
       expect(createdFile.name).toEqual(filename);
       expect(createdFile.path).toEqual("/" + folderName + "/" + filename);
       expect(createdFile.createdAt).toEqual(expect.any(Date));
@@ -77,7 +109,7 @@ describe("File controller", () => {
       const subFolder = await helper.createNewFolder(subFolderName, rootName);
 
       const response = await request(app)
-        .post("/v1/file")
+        .post("/v1/files")
         .send({ name: filename, parentId: subFolder.id })
         .expect(201);
       expect(response.body.name).toEqual(filename);
@@ -86,7 +118,7 @@ describe("File controller", () => {
       expect(response.body.updatedAt).toEqual(expect.any(String));
       expect(response.body.parentId).toEqual(subFolder.id);
 
-      const createdFile = await File.findByPk(1);
+      const createdFile = await File.unscoped().findByPk(1);
       expect(createdFile.name).toEqual(filename);
       expect(createdFile.path).toEqual("/" + rootName + "/" + subFolderName + "/" + filename);
       expect(createdFile.createdAt).toEqual(expect.any(Date));
@@ -95,14 +127,14 @@ describe("File controller", () => {
     });
 
     it("should fail to create a new file without 'name' specified", async () => {
-      const response = await request(app).post("/v1/file").send({}).expect(406);
+      const response = await request(app).post("/v1/files").send({}).expect(406);
       expect(response.body.success).toEqual(false);
       expect(response.body.message).toEqual("Name required");
     });
 
     it("should fail to create a new file in non-existing folder", async () => {
       await request(app)
-        .post("/v1/file")
+        .post("/v1/files")
         .send({ name: "some file name.ext", parentId: 12345 })
         .expect(406);
     });
@@ -114,7 +146,7 @@ describe("File controller", () => {
       let filesCount = await File.count({});
       expect(filesCount).toEqual(1);
 
-      await request(app).delete("/v1/file/1").expect(204);
+      await request(app).delete("/v1/files/1").expect(204);
       filesCount = await File.count({});
       expect(filesCount).toEqual(0);
     });
@@ -127,13 +159,13 @@ describe("File controller", () => {
       let filesCount = await File.count({});
       expect(filesCount).toEqual(1);
 
-      await request(app).delete("/v1/file/1").expect(204);
+      await request(app).delete("/v1/files/1").expect(204);
       filesCount = await File.count({});
       expect(filesCount).toEqual(0);
     });
 
     it("should fail to remove a non-existing file", async () => {
-      const response = await request(app).delete("/v1/file/1").expect(406);
+      const response = await request(app).delete("/v1/files/1").expect(406);
       expect(response.body.success).toEqual(false);
       expect(response.body.message).toEqual("File not found!");
     });

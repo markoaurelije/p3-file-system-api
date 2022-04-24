@@ -36,6 +36,27 @@ module.exports = class TestHelpers {
     return await Folder.create({ name: folderName, parentId });
   }
 
+  static async createTestDataSet() {
+    const { File, Folder } = require("../src/models").models;
+    let folders = ["src", "test"];
+    let files = [
+      ["index.js", "file.js", "folder.js"],
+      ["index.test.js", "file.test.js", "folder.test.js"],
+    ];
+
+    for (let i = 0; i < folders.length; i++) {
+      await Folder.create({ name: folders[i] });
+    }
+
+    for (let i = 0; i < files[0].length; i++) {
+      await File.create({ name: files[0][i], parentId: 1 });
+    }
+
+    for (let i = 0; i < files[1].length; i++) {
+      await File.create({ name: files[1][i], parentId: 2 });
+    }
+  }
+
   static getApp() {
     const App = require("../src/app");
     return new App().getApp();

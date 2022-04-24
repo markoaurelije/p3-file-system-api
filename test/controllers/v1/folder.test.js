@@ -23,7 +23,7 @@ describe("Folder controller", () => {
   describe("GET method", () => {
     it("should list all folders", async () => {
       await helper.createNewFolder();
-      const response = await request(app).get("/v1/folder").expect(200);
+      const response = await request(app).get("/v1/folders").expect(200);
       expect(response.body.length).toEqual(1);
     });
   });
@@ -31,7 +31,10 @@ describe("Folder controller", () => {
   describe("POST method", () => {
     it("should create a new folder in root folder", async () => {
       const folderName = "My Documents";
-      const response = await request(app).post("/v1/folder").send({ name: folderName }).expect(201);
+      const response = await request(app)
+        .post("/v1/folders")
+        .send({ name: folderName })
+        .expect(201);
       expect(response.body.name).toEqual(folderName);
       expect(response.body.path).toEqual("/" + folderName);
       expect(response.body.createdAt).toEqual(expect.any(String));
@@ -52,7 +55,7 @@ describe("Folder controller", () => {
 
       const subFolderName = "Marko";
       const response = await request(app)
-        .post("/v1/folder")
+        .post("/v1/folders")
         .send({ name: subFolderName, parentId: folder.id })
         .expect(201);
       expect(response.body.id).toBeGreaterThan(0);
@@ -72,14 +75,14 @@ describe("Folder controller", () => {
     });
 
     it("should fail to create a new folder without 'name' specified", async () => {
-      const response = await request(app).post("/v1/folder").send({}).expect(406);
+      const response = await request(app).post("/v1/folders").send({}).expect(406);
       expect(response.body.success).toEqual(false);
       expect(response.body.message).toEqual("Name required");
     });
 
     it("should fail to create a new folder in non-existing folder", async () => {
       await request(app)
-        .post("/v1/folder")
+        .post("/v1/folders")
         .send({ name: "new folder", parentId: 12345 })
         .expect(406);
     });
@@ -91,7 +94,7 @@ describe("Folder controller", () => {
       let foldersCount = await Folder.count({});
       expect(foldersCount).toEqual(1);
 
-      await request(app).delete("/v1/folder/1").expect(204);
+      await request(app).delete("/v1/folders/1").expect(204);
       foldersCount = await Folder.count({});
       expect(foldersCount).toEqual(0);
     });
@@ -102,13 +105,13 @@ describe("Folder controller", () => {
       let foldersCount = await Folder.count({});
       expect(foldersCount).toEqual(2);
 
-      await request(app).delete(`/v1/folder/${subFolder.id}`).expect(204);
+      await request(app).delete(`/v1/folders/${subFolder.id}`).expect(204);
       foldersCount = await Folder.count({});
       expect(foldersCount).toEqual(1);
     });
 
     it("should fail to remove a non-existing file", async () => {
-      const response = await request(app).delete("/v1/folder/1234").expect(406);
+      const response = await request(app).delete("/v1/folders/1234").expect(406);
       expect(response.body.success).toEqual(false);
       expect(response.body.message).toEqual("Folder not found!");
     });

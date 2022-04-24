@@ -110,10 +110,17 @@ describe("Folder controller", () => {
       expect(foldersCount).toEqual(1);
     });
 
-    it("should fail to remove a non-existing file", async () => {
+    it("should fail to remove a non-existing folder", async () => {
       const response = await request(app).delete("/v1/folders/1234").expect(406);
       expect(response.body.success).toEqual(false);
       expect(response.body.message).toEqual("Folder not found!");
+    });
+
+    it("should fail to remove a folder with children", async () => {
+      await helper.createTestDataSet();
+
+      const response = await request(app).delete("/v1/folders/1").expect(500);
+      expect(response.body.success).toEqual(false);
     });
   });
 });

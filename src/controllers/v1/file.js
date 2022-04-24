@@ -39,7 +39,11 @@ router
     const file = await File.findByPk(req.params.id);
     if (!file) return res.status(406).send({ success: false, message: "File not found!" }).send();
 
-    await file.destroy();
+    try {
+      await file.destroy();
+    } catch (e) {
+      return res.status(500).send({ success: false, message: e.message });
+    }
 
     return res.status(204).send();
   });

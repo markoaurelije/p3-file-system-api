@@ -35,7 +35,11 @@ router
     if (!folder)
       return res.status(406).send({ success: false, message: "Folder not found!" }).send();
 
-    await folder.destroy();
+    try {
+      await folder.destroy();
+    } catch (e) {
+      return res.status(500).send({ success: false, message: e.message });
+    }
 
     return res.status(204).send();
   });

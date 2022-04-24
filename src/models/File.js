@@ -27,7 +27,7 @@ module.exports = (sequelize) => {
 
     static async findWithName({ name, parent = null, limit = null }) {
       let nameCondition = Object.assign({}, name && { name: { [Op.startsWith]: name } });
-      let parentCondition = Object.assign({}, parent && { name: parent });
+      let parentCondition = Object.assign({}, parent != null && { name: parent });
 
       let options = {
         where: nameCondition,
@@ -74,6 +74,7 @@ module.exports = (sequelize) => {
     {
       sequelize,
       modelName: "File",
+      indexes: [{ fields: ["name"] }],
       defaultScope: { attributes: { exclude: ["parentId"] } },
     }
   );

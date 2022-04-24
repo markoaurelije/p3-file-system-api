@@ -33,7 +33,7 @@ module.exports = (sequelize) => {
         // unique: true,
         validate: {
           is: {
-            args: /^[a-zA-Z\d\s\-_]+$/,
+            args: /^[a-zA-Z\d\s\-_.@]+$/,
             msg: "'name' contains invalid character(s)",
           },
           async uniqueWithinParent() {
@@ -52,6 +52,7 @@ module.exports = (sequelize) => {
     },
     {
       sequelize,
+      indexes: [{ fields: ["name"] }],
       modelName: "Folder",
     }
   );

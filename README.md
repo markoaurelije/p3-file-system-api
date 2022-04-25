@@ -5,8 +5,20 @@
 
 ## Deployment
 - clone a repository
-- run `docker-compose up -d`
+- cd into a directory
+- run command: `touch .env`
+- run command: `docker-compose up -d`
+- the first time docker is praparing containers, it may need some time to get services running.  Watch the logs output via `docker logs  p3-file-system-api_api_1 -f` to see the status of the service
+- wait for `Listening at port 3000` output and you're ready to go
 - use API specification in `./docs` folder as a reference on how to use API
+
+### Stopping / Re-starting services
+ - Stop all p3-file-system-API services via `docker-compose stop`
+ - Restart with `docker-compose start`
+
+## Developmnet environment setup / runing tests
+- Run command `npm install` to install all node.js development dependecies.  
+- Run command `npm run test` to run all the unit tests. Tests depend on docker service named `postgres-test-db` already prepared with `docker-compose.yaml` file.
 
 ## Overview
 Creating a large-scale browser-based file system, functionally similar to Dropbox’s web interface, or to a folder browsing structure you might find on a Windows or macOS device.  
